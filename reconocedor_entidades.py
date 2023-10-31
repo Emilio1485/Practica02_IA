@@ -1,32 +1,34 @@
-import pandas as pd
+import csv
 
-datos = pd.read_csv('ner_dataset.csv', names=['Texto', 'Etiqueta'])
-etiquetas_BIO = []
+# Abre el archivo CSV en modo lectura
+with open('ner_dataset.csv', 'r') as csv_file:
+    # Lee el archivo CSV utilizando el módulo csv
+    csv_reader = csv.reader(csv_file)
 
-entidad_actual = None
+    lines = []
 
-for etiqueta in datos['Etiqueta']:
-    if etiqueta == 'O':
-        etiquetas_BIO.append('O')
-        entidad_actual = None
+    #Seguimiento de la entidad actual
+    entidad_actual = None
 
-    elif etiqueta.startswith('B-Tag'):
-        etiquetas_BIO.append('B-Tag' + etiqueta[2:])
-        entidad_actual = etiqueta[2:]
+    # Recorre cada fila en el archivo CSV
+    for row in csv_reader:
+    
+        etiqueta = row[0]
 
-    elif etiqueta.startswith('I-Tag'):
-
-        if entidad_actual is not None and etiqueta[2:] == entidad_actual:
-            etiquetas_BIO.append('I-Tag' + etiqueta[2:])
-        else:
-            etiquetas_BIO.append('O')
+        if etiqueta == 'O':
+            etiquetas_bio = 'O'
             entidad_actual = None
+        elif etiqueta.startswith('B-Tag'):
+            etiquetas_bio = etiqueta
+            entidad_actual = etiqueta[2:]
+        elif etiqueta.startswith('I-Tag'):
+            if entidad_actual is not None and etiqueta[2:] == entidad_actual:
+                etiquetas_bio = etiqueta
+            else:
+                etiquetas_bio = 'O'
+                entidad_actual = None
+        else:
+            etiquetas_bio = 'O'
 
-    else:
-        etiquetas_BIO.append('O')
-
-
-datos['Etiqueta-BIO'] = etiquetas_BIO
-
-
-datos.to_csv('dataset_BIO_1.csv', index=False)
+        # Agrega las líneas procesadas.
+        lines.append([row[0], etiquetas_bio])
