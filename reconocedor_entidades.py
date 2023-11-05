@@ -1,33 +1,37 @@
 import pandas as pd
 
-# Abre el archivo CSV en modo lectura
+# Abre el archivo CSV en modo lectura, se le da a la columna 1 el nombre de 'Texto' y la columna 2 el nombre de 'Etiqueta'
 datos = pd.read_csv('ner_dataset.csv', names=['Texto', 'Etiqueta'])
 
-print(datos[:21])
+#Imprime solammente una fila
+def imprimir_elem_tabla():
+    i = int(input("Dame un número de o a 5559:\n"))
+    print("\nTabla:\n")
+    print(datos.iloc[i])
 
-datos['Etiqueta'] = datos['Etiqueta'].astype(str)
+#Imprime todos los datos
+def imprimir_datos():
+    print("\nTabla:\n")
+    print(datos)
 
-etiquetas_BIO = []
-entidad_actual = None
+#Hace minusculas todas las palabras y muestra todas las filas del archivo
+def lower_eti_all():
+    datos['Texto']= datos['Texto'].str.lower().str.split()
+    etiquetas = datos["Etiqueta"].tolist()
+    palabras_etiquetas = [list(zip(texto, etiqueta.split())) for texto, etiqueta in zip(datos['Texto'], etiquetas)]
+    datos["Palabras_Etiquetas"] = palabras_etiquetas
+    print(datos['Palabras_Etiquetas'])
 
-# Recorre las filas del DataFrame
-for etiqueta in datos['Etiqueta']:
-    if etiqueta.startswith('O'):
-        etiquetas_BIO.append('O')
-        entidad_actual = None
-    elif etiqueta.startswith('B-'):
-        etiquetas_BIO.append('B-' + etiqueta[2:])
-        entidad_actual = etiqueta[2:]
-    elif etiqueta.startswith('I-'):
-        if entidad_actual is not None and etiqueta[2:] == entidad_actual:
-            etiquetas_BIO.append('I-' + entidad_actual)
-        else:
-            etiquetas_BIO.append('O')
-            entidad_actual = None
-    else:
-        etiquetas_BIO.append('O')
+#Hace minusculas las palabras y muestra solamente una fila puesta en el input
+def lower_eti_uno():
+    i = int(input("Dame un número de o a 5559:\n"))
+    datos['Texto']= datos['Texto'].str.lower().str.split()
+    etiquetas = datos["Etiqueta"].tolist()
+    palabras_etiquetas = [list(zip(texto, etiqueta.split())) for texto, etiqueta in zip(datos['Texto'], etiquetas)]
+    datos["Palabras_Etiquetas"] = palabras_etiquetas
+    print(datos['Palabras_Etiquetas'].iloc[i])
+ 
 
-# Agrega la lista de etiquetas BIO al DataFrame
-datos['Etiqueta'] = etiquetas_BIO
+imprimir_datos()
+lower_eti_uno()
 
-print(datos[:21])
